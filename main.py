@@ -1,6 +1,7 @@
 from PyQt6 import QtWidgets
 from PyQt6.QtWidgets import (QApplication, QMainWindow, QVBoxLayout, QPushButton)
 import buttons
+import drawing_area
 
 import sys
 
@@ -24,6 +25,7 @@ class MainWindow(QMainWindow):
         layout.addWidget(buttons.UndoButton(self))
         layout.addWidget(buttons.RedoButton(self))
         layout.addWidget(buttons.SaveButton(self))
+        layout.addWidget(drawing_area.DrawingArea())
         widget.setLayout(layout)
         self.setCentralWidget(widget)
 
