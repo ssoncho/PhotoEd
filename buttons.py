@@ -3,47 +3,48 @@ from PyQt6.QtWidgets import QPushButton
 from PyQt6.QtCore import (QSize, Qt)
 
 class FunctionalButton(QPushButton):
-    def __init__(self, parent, text=""):
-        super().__init__(parent=parent)
+    def __init__(self, text=""):
+        super().__init__()
+        self.setFixedSize(30, 30)
         self.setCursor(Qt.CursorShape.PointingHandCursor)
         self.setText(text)
 
 class AddImageButton(FunctionalButton):
-    def __init__(self, parent, text="Add image"):
-        super().__init__(parent=parent, text=text)
+    def __init__(self, text="Add image"):
+        super().__init__(text=text)
 
 class DrawFigureButton(FunctionalButton):
-    def __init__(self, parent, text="Draw figure"):
-        super().__init__(parent=parent, text=text)
+    def __init__(self, text="Draw figure"):
+        super().__init__(text=text)
 
 class DrawButton(FunctionalButton):
-    def __init__(self, parent, text="Draw"):
-        super().__init__(parent=parent, text=text)
+    def __init__(self, text="Draw"):
+        super().__init__(text=text)
 
 class EraseButton(FunctionalButton):
-    def __init__(self, parent, text="Erase"):
-        super().__init__(parent=parent, text=text)
+    def __init__(self, text="Erase"):
+        super().__init__(text=text)
 
 class AddTextButton(FunctionalButton):
-    def __init__(self, parent, text="Add text"):
-        super().__init__(parent=parent, text=text)
+    def __init__(self, text="Add text"):
+        super().__init__(text=text)
 
 class ChangeImageColorButton(FunctionalButton):
-    def __init__(self, parent, text="Change image color"):
-        super().__init__(parent=parent, text=text)
+    def __init__(self, text="Change image color"):
+        super().__init__(text=text)
 
 class CutImageButton(FunctionalButton):
-    def __init__(self, parent, text="Cut image"):
-        super().__init__(parent=parent, text=text)
+    def __init__(self, text="Cut image"):
+        super().__init__(text=text)
 
 class UndoButton(FunctionalButton):
-    def __init__(self, parent, text="Undo"):
-        super().__init__(parent=parent, text=text)
+    def __init__(self, text="Undo"):
+        super().__init__(text=text)
 
 class RedoButton(FunctionalButton):
-    def __init__(self, parent, text="Redo"):
-        super().__init__(parent=parent, text=text)
+    def __init__(self, text="Redo"):
+        super().__init__(text=text)
 
 class SaveButton(FunctionalButton):
-    def __init__(self, parent, text="Save"):
-        super().__init__(parent=parent, text=text)
+    def __init__(self, text="Save"):
+        super().__init__(text=text)

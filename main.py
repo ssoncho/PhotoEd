@@ -1,7 +1,8 @@
 from PyQt6 import QtWidgets
-from PyQt6.QtWidgets import (QApplication, QMainWindow, QVBoxLayout, QPushButton)
+from PyQt6.QtWidgets import (QApplication, QMainWindow, QVBoxLayout, QHBoxLayout)
 import buttons
 import drawing_area
+from layers import LayersArea
 
 import sys
 
@@ -13,21 +14,26 @@ class MainWindow(QMainWindow):
     def init_UI(self):
         self.setGeometry(50, 50, 300, 300)
         self.setWindowTitle('PhotoEd')
-        widget = QtWidgets.QWidget()
-        layout = QVBoxLayout()
-        layout.addWidget(buttons.AddImageButton(self))
-        layout.addWidget(buttons.DrawFigureButton(self))
-        layout.addWidget(buttons.DrawButton(self))
-        layout.addWidget(buttons.EraseButton(self))
-        layout.addWidget(buttons.AddTextButton(self))
-        layout.addWidget(buttons.ChangeImageColorButton(self))
-        layout.addWidget(buttons.CutImageButton(self))
-        layout.addWidget(buttons.UndoButton(self))
-        layout.addWidget(buttons.RedoButton(self))
-        layout.addWidget(buttons.SaveButton(self))
-        layout.addWidget(drawing_area.DrawingArea())
-        widget.setLayout(layout)
-        self.setCentralWidget(widget)
+        main_container = QtWidgets.QWidget()
+        main_layout = QHBoxLayout()
+        buttons_layout = QVBoxLayout()
+
+        buttons_layout.addWidget(buttons.AddImageButton())
+        buttons_layout.addWidget(buttons.DrawFigureButton())
+        buttons_layout.addWidget(buttons.DrawButton())
+        buttons_layout.addWidget(buttons.EraseButton())
+        buttons_layout.addWidget(buttons.AddTextButton())
+        buttons_layout.addWidget(buttons.ChangeImageColorButton())
+        buttons_layout.addWidget(buttons.CutImageButton())
+        buttons_layout.addWidget(buttons.UndoButton())
+        buttons_layout.addWidget(buttons.RedoButton())
+        buttons_layout.addWidget(buttons.SaveButton())
+        
+        main_layout.addWidget(LayersArea())
+        main_layout.addLayout(buttons_layout)
+        main_layout.addWidget(drawing_area.DrawingArea())
+        main_container.setLayout(main_layout)
+        self.setCentralWidget(main_container)
 
 app = QApplication(sys.argv)
 window = MainWindow()
