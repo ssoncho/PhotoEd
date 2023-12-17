@@ -1,13 +1,14 @@
 from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QFrame)
 
-class LayersArea(QWidget):
+class LayersArea(QFrame):
     def __init__(self):
         super().__init__()
 
-        self.frame = QFrame(self)
         self.layout = QVBoxLayout(self)
         self.setFixedHeight(200)
         self.setMaximumWidth(200)
+        self.setFrameStyle(QFrame.Shape.Box)
+        self.setLineWidth(1)
 
         self.layers = []
         self.add_layer(Layer("First Layer"))

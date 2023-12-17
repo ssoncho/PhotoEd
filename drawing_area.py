@@ -1,6 +1,6 @@
 from PyQt6 import QtWidgets
 from PyQt6.QtWidgets import (QLabel)
-from PyQt6.QtGui import (QPixmap, QPainter, QPen)
+from PyQt6.QtGui import (QPixmap, QPainter, QPen, QColor)
 from PyQt6.QtCore import (Qt, QPoint, QLineF, QSize)
 
 class DrawingArea(QLabel):
@@ -11,6 +11,10 @@ class DrawingArea(QLabel):
         self.setPixmap(self.pixmap)
         self.last_x, self.last_y = None, None
         self.setMinimumSize(50,50)
+        self.pen_color = Qt.GlobalColor.blue
+
+    def set_pen_color(self, color: QColor):
+        self.pen_color = color
 
     def mouseMoveEvent(self, e):
         if self.last_x is None: # First event.
@@ -19,7 +23,7 @@ class DrawingArea(QLabel):
             return # Ignore the first time.
 
         painter = QPainter(self.pixmap)
-        pen = QPen(Qt.GlobalColor.blue, 10)
+        pen = QPen(self.pen_color, 10)
         pen.setCapStyle(Qt.PenCapStyle.RoundCap)
         painter.setPen(pen)
         line = QLineF(self.last_x, self.last_y, e.position().x(), e.position().y())
