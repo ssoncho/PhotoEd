@@ -1,5 +1,5 @@
 from PyQt6.QtWidgets import (QWidget, QHBoxLayout, QFrame, QPushButton)
-from PyQt6.QtGui import (QPalette, QColor)
+from PyQt6.QtGui import (QColor)
 
 class ColorPanel(QFrame):
    def __init__(self, colors: list[str], drawing_area):

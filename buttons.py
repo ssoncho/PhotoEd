@@ -1,7 +1,6 @@
 from PyQt6 import QtWidgets
 from PyQt6.QtWidgets import QPushButton
 from PyQt6.QtCore import (QSize, Qt)
-
 class FunctionalButton(QPushButton):
     def __init__(self, text=""):
         super().__init__()
@@ -17,20 +16,12 @@ class DrawFigureButton(FunctionalButton):
     def __init__(self, text="Draw figure"):
         super().__init__(text=text)
 
-class DrawButton(FunctionalButton):
-    def __init__(self, text="Draw"):
-        super().__init__(text=text)
-
 class EraseButton(FunctionalButton):
     def __init__(self, text="Erase"):
         super().__init__(text=text)
 
 class AddTextButton(FunctionalButton):
     def __init__(self, text="Add text"):
-        super().__init__(text=text)
-
-class ChangeImageColorButton(FunctionalButton):
-    def __init__(self, text="Change image color"):
         super().__init__(text=text)
 
 class CutImageButton(FunctionalButton):
@@ -46,5 +37,6 @@ class RedoButton(FunctionalButton):
         super().__init__(text=text)
 
 class SaveButton(FunctionalButton):
-    def __init__(self, text="Save"):
+    def __init__(self, drawing_area, text="Save"):
         super().__init__(text=text)
+        self.clicked.connect(drawing_area.save_image)

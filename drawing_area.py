@@ -1,17 +1,21 @@
-from PyQt6 import QtWidgets
-from PyQt6.QtWidgets import (QLabel)
+from PyQt6.QtWidgets import (QLabel, QFileDialog, QSizePolicy)
 from PyQt6.QtGui import (QPixmap, QPainter, QPen, QColor)
 from PyQt6.QtCore import (Qt, QPoint, QLineF, QSize)
 
 class DrawingArea(QLabel):
     def __init__(self):
         super().__init__()
-        self.pixmap = QPixmap(self.size())
-        self.pixmap.fill(Qt.GlobalColor.white)
+        image = QPixmap("dog.jpg")
+        self.pixmap = image.scaled(700, 700, Qt.AspectRatioMode.KeepAspectRatio)
         self.setPixmap(self.pixmap)
         self.last_x, self.last_y = None, None
         self.setMinimumSize(50,50)
         self.pen_color = Qt.GlobalColor.blue
+
+    def save_image(self):
+        file_name, _ = QFileDialog.getSaveFileName(self, "Save Image", "", "Images (*.png *.jpg *.bmp)")
+        if file_name:
+            self.pixmap.save(file_name)
 
     def set_pen_color(self, color: QColor):
         self.pen_color = color
@@ -23,7 +27,7 @@ class DrawingArea(QLabel):
             return # Ignore the first time.
 
         painter = QPainter(self.pixmap)
-        pen = QPen(self.pen_color, 10)
+        pen = QPen(self.pen_color, 7)
         pen.setCapStyle(Qt.PenCapStyle.RoundCap)
         painter.setPen(pen)
         line = QLineF(self.last_x, self.last_y, e.position().x(), e.position().y())
