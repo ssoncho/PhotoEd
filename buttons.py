@@ -1,6 +1,6 @@
 from PyQt6 import QtWidgets
 from PyQt6.QtWidgets import QPushButton
-from PyQt6.QtCore import (QSize, Qt)
+from PyQt6.QtCore import (Qt)
 class FunctionalButton(QPushButton):
     def __init__(self, text=""):
         super().__init__()
@@ -37,6 +37,5 @@ class RedoButton(FunctionalButton):
         super().__init__(text=text)
 
 class SaveButton(FunctionalButton):
-    def __init__(self, drawing_area, text="Save"):
+    def __init__(self, text="Save"):
         super().__init__(text=text)
-        self.clicked.connect(drawing_area.save_image)
