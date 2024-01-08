@@ -1,11 +1,20 @@
-from PyQt6.QtWidgets import (QLabel, QFileDialog, QGraphicsView, QGraphicsScene, QGraphicsPixmapItem)
+from PyQt6.QtWidgets import (QLabel, QFileDialog, QGraphicsView, QGraphicsScene, QGraphicsPixmapItem, QGraphicsLineItem)
 from PyQt6.QtGui import (QPixmap, QPainter, QPen, QColor, QImage)
 from PyQt6.QtCore import (Qt, QPoint, QLineF, QPointF, QRectF)
+from PyQt6 import QtGui
+
+from enum import Enum
+
+class Mode(Enum):
+    DRAGGING = 1
+    DRAWING = 2
+    ERASING = 3
 
 class HandDrawingScene(QGraphicsScene):
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.drawing = False
+        self.mouse_pressed = False
+        self.mode = Mode.DRAGGING
         self.last_pos = QPointF()
         self.pen_color = Qt.GlobalColor.blue
         self.pen = QPen(self.pen_color, 10, Qt.PenStyle.SolidLine, Qt.PenCapStyle.RoundCap, Qt.PenJoinStyle.RoundJoin)
@@ -13,13 +22,25 @@ class HandDrawingScene(QGraphicsScene):
     def set_pen_color(self, color: QColor):
         self.pen_color = color
 
+    def set_drawing(self):
+        self.mode = Mode.DRAWING
+
+    def set_erasing(self):
+        self.mode = Mode.ERASING
+
     def mousePressEvent(self, event):
-        self.last_pos = event.scenePos()
-        self.drawing = True
-        self.pen.setColor(self.pen_color)
+        current_position = event.scenePos()
+        self.mouse_pressed = True
+        if self.mode == Mode.DRAWING:
+            self.last_pos = current_position
+            self.pen.setColor(self.pen_color)
+        # elif self.mode == Mode.ERASING:
+        #     item_to_remove = self.itemAt(current_position, QtGui.QTransform())
+        #     if item_to_remove:
+        #         self.removeItem(item_to_remove)
 
     def mouseMoveEvent(self, event):
-        if self.drawing:
+        if self.mode == Mode.DRAWING and self.mouse_pressed:
             new_pos = event.scenePos()
 
             if not self.parent().pixmap.rect().contains(new_pos.toPoint()):
@@ -30,8 +51,13 @@ class HandDrawingScene(QGraphicsScene):
 
             self.last_pos = new_pos
 
+        elif self.mode == Mode.ERASING and self.mouse_pressed:
+            item_to_remove = self.itemAt(event.scenePos(), QtGui.QTransform())
+            if isinstance(item_to_remove, QGraphicsLineItem):
+                self.removeItem(item_to_remove)
+
     def mouseReleaseEvent(self, event):
-        self.drawing = False
+        self.mouse_pressed = False
 
 class Viewer(QGraphicsView):
     def __init__(self, parent=None):

@@ -27,6 +27,7 @@ class MainWindow(QMainWindow):
         drawing_settings_layout.addWidget(LayersArea())
 
         self.add_image_button = FunctionalButton(img_path="img/add.png")
+        self.draw_button = FunctionalButton(img_path="img/draw.png")
         self.draw_figure_button = FunctionalButton(img_path="img/figure.png")
         self.erase_button = FunctionalButton(img_path="img/erase.png")
         self.add_text_button = FunctionalButton(img_path="img/text.png")
@@ -35,6 +36,7 @@ class MainWindow(QMainWindow):
         self.redo_button = FunctionalButton(img_path="img/redo.png")
         self.save_button = FunctionalButton(img_path="img/save.png")
         buttons_layout.addWidget(self.add_image_button)
+        buttons_layout.addWidget(self.draw_button)
         buttons_layout.addWidget(self.draw_figure_button)
         buttons_layout.addWidget(self.erase_button)
         buttons_layout.addWidget(self.add_text_button)
@@ -53,6 +55,8 @@ class MainWindow(QMainWindow):
     def init_signals(self):
         self.save_button.clicked.connect(self.viewer.save_image)
         self.add_image_button.clicked.connect(self.viewer.add_image)
+        self.erase_button.clicked.connect(self.viewer.hand_drawing_scene.set_erasing)
+        self.draw_button.clicked.connect(self.viewer.hand_drawing_scene.set_drawing)
 
 app = QApplication(sys.argv)
 window = MainWindow()
