@@ -1,7 +1,8 @@
 from PyQt6 import QtWidgets
+from PyQt6 import QtCore
 from PyQt6.QtWidgets import (QApplication, QMainWindow, QVBoxLayout, QHBoxLayout, QScrollArea)
 from buttons import FunctionalButton
-from drawing_area import Viewer
+from drawing_area import Viewer, LayerItem
 from layers import LayersArea
 from color_panel import (ColorPanel)
 
@@ -22,7 +23,7 @@ class MainWindow(QMainWindow):
         drawing_settings_layout = QVBoxLayout()
 
         self.viewer = Viewer()
-        color_panel = ColorPanel(['red', 'green', 'blue'], self.viewer.hand_drawing_scene)
+        color_panel = ColorPanel(['red', 'green', 'blue'], self.viewer.drawing_layer)
         drawing_settings_layout.addWidget(color_panel)
         drawing_settings_layout.addWidget(LayersArea())
 
@@ -47,7 +48,6 @@ class MainWindow(QMainWindow):
 
         main_layout.addLayout(drawing_settings_layout)
         main_layout.addLayout(buttons_layout)
-        #main_layout.addWidget(scroll_area)
         main_layout.addWidget(self.viewer)
         main_container.setLayout(main_layout)
         self.setCentralWidget(main_container)
@@ -55,8 +55,16 @@ class MainWindow(QMainWindow):
     def init_signals(self):
         self.save_button.clicked.connect(self.viewer.save_image)
         self.add_image_button.clicked.connect(self.viewer.add_image)
-        self.erase_button.clicked.connect(self.viewer.hand_drawing_scene.set_erasing)
-        self.draw_button.clicked.connect(self.viewer.hand_drawing_scene.set_drawing)
+        self.erase_button.clicked.connect(self.onStateChanged)
+        self.draw_button.clicked.connect(self.onStateChanged)
+
+    @QtCore.pyqtSlot(bool)
+    def onStateChanged(self):
+        self.viewer.drawing_layer.current_state = (
+            LayerItem.EraseState
+            if self.sender() == self.erase_button
+            else LayerItem.DrawState
+        )
 
 app = QApplication(sys.argv)
 window = MainWindow()
