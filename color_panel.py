@@ -14,7 +14,7 @@ class ColorPanel(QFrame):
        for color in colors:
            color_button = ColorButton(color)
            self.layout.addWidget(color_button)
-           color_button.pressed.connect(lambda color=color: drawing_area.set_pen_color(QColor(color)))
+           #color_button.pressed.connect(lambda color=color: drawing_area.set_pen_color(QColor(color)))
 
 
 class ColorButton(QPushButton):

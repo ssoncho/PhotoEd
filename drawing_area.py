@@ -3,12 +3,18 @@ from PyQt6.QtGui import (QPixmap, QPainter, QPen, QColor, QImage)
 from PyQt6.QtCore import (Qt, QPoint, QLineF, QPointF, QRectF, QRect, QSize, QSizeF)
 from PyQt6 import QtGui
 
-class LayerItem(QGraphicsRectItem):
+#from layers import LayersPanel
+
+class Layer(QGraphicsRectItem):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+class DrawingLayer(Layer):
     DrawState, EraseState = range(2)
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.current_state = LayerItem.DrawState
+        self.current_state = DrawingLayer.DrawState
         self.setPen(QtGui.QPen(Qt.PenStyle.NoPen))
 
         self.m_line_eraser = QLineF()
@@ -28,18 +34,18 @@ class LayerItem(QGraphicsRectItem):
         painter.restore()
 
     def mousePressEvent(self, event):
-        if self.current_state == LayerItem.EraseState:
+        if self.current_state == DrawingLayer.EraseState:
             self._clear(event.pos().toPoint())
-        elif self.current_state == LayerItem.DrawState:
+        elif self.current_state == DrawingLayer.DrawState:
             self.m_line_draw.setP1(event.pos())
             self.m_line_draw.setP2(event.pos())
         super().mousePressEvent(event)
         event.accept()
 
     def mouseMoveEvent(self, event):
-        if self.current_state == LayerItem.EraseState:
+        if self.current_state == DrawingLayer.EraseState:
             self._clear(event.pos().toPoint())
-        elif self.current_state == LayerItem.DrawState:
+        elif self.current_state == DrawingLayer.DrawState:
             self.m_line_draw.setP2(event.pos())
             self._draw_line(
                 self.m_line_draw, QtGui.QPen(self.pen_color, 15, cap=Qt.PenCapStyle.RoundCap, join=Qt.PenJoinStyle.RoundJoin)
@@ -90,17 +96,25 @@ class Viewer(QGraphicsView):
         self.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOn)
 
         self.background_item = QGraphicsPixmapItem()
-        self.m_drawing_layer = LayerItem(self.background_item)
-        self.m_drawing_layer.pen_color = Qt.GlobalColor.transparent
+        self.layers = []
+        self.m_current_layer = self.background_item
 
         self.scene().addItem(self.background_item)
+
+    def add_drawing_layer(self):
+        self.m_current_layer = DrawingLayer(self.background_item)
+        self.m_current_layer.pen_color = Qt.GlobalColor.transparent
+        self.m_current_layer.reset()
+        self.layers.append(self.m_current_layer)
 
     def set_image(self, image):
         self.scene().setSceneRect(
             QRectF(QPointF(), QSizeF(image.size()))
         )
         self.background_item.setPixmap(image)
-        self.m_drawing_layer.reset()
+        for layer in self.layers:
+            layer.reset()
+            #del layer
         self.fitInView(self.background_item, Qt.AspectRatioMode.KeepAspectRatio)
         self.centerOn(self.background_item)
 
@@ -121,8 +135,8 @@ class Viewer(QGraphicsView):
             self.set_image(image)
 
     @property
-    def drawing_layer(self):
-        return self.m_drawing_layer
+    def current_layer(self):
+        return self.m_current_layer
 
     def resizeEvent(self, event):
         super().resizeEvent(event)

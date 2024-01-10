@@ -2,8 +2,8 @@ from PyQt6 import QtWidgets
 from PyQt6 import QtCore
 from PyQt6.QtWidgets import (QApplication, QMainWindow, QVBoxLayout, QHBoxLayout, QScrollArea)
 from buttons import FunctionalButton
-from drawing_area import Viewer, LayerItem
-from layers import LayersArea
+from drawing_area import Viewer, DrawingLayer, Layer
+from layers import LayersPanel
 from color_panel import (ColorPanel)
 
 import sys
@@ -22,10 +22,12 @@ class MainWindow(QMainWindow):
         buttons_layout = QVBoxLayout()
         drawing_settings_layout = QVBoxLayout()
 
+        
         self.viewer = Viewer()
-        color_panel = ColorPanel(['red', 'green', 'blue'], self.viewer.drawing_layer)
-        drawing_settings_layout.addWidget(color_panel)
-        drawing_settings_layout.addWidget(LayersArea())
+        self.layers_panel = LayersPanel(self.viewer)
+        #color_panel = ColorPanel(['red', 'green', 'blue'], self.viewer.drawing_layer)
+        #drawing_settings_layout.addWidget(color_panel)
+        drawing_settings_layout.addWidget(self.layers_panel)
 
         self.add_image_button = FunctionalButton(img_path="img/add.png")
         self.draw_button = FunctionalButton(img_path="img/draw.png")
@@ -57,14 +59,24 @@ class MainWindow(QMainWindow):
         self.add_image_button.clicked.connect(self.viewer.add_image)
         self.erase_button.clicked.connect(self.onStateChanged)
         self.draw_button.clicked.connect(self.onStateChanged)
+        self.draw_button.clicked.connect(self.showColorDialog)
 
     @QtCore.pyqtSlot(bool)
     def onStateChanged(self):
-        self.viewer.drawing_layer.current_state = (
-            LayerItem.EraseState
-            if self.sender() == self.erase_button
-            else LayerItem.DrawState
+        if isinstance(self.viewer.current_layer, DrawingLayer):
+            self.viewer.current_layer.current_state = (
+                DrawingLayer.EraseState
+                if self.sender() == self.erase_button
+                else DrawingLayer.DrawState
         )
+
+    @QtCore.pyqtSlot()
+    def showColorDialog(self):
+        if isinstance(self.viewer.m_current_layer, Layer):
+            color = QtWidgets.QColorDialog.getColor(
+                self.viewer.m_current_layer.pen_color, self
+            )
+            self.viewer.m_current_layer.pen_color = color
 
 app = QApplication(sys.argv)
 window = MainWindow()

@@ -1,34 +1,43 @@
 from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QFrame)
-
-class LayersArea(QFrame):
-    def __init__(self):
+from drawing_area import DrawingLayer, Viewer
+class LayersPanel(QFrame):
+    def __init__(self, viewer: Viewer):
         super().__init__()
 
         self.layout = QVBoxLayout(self)
+        self.layout.addWidget(QPushButton("+", clicked=self.add_layer_widget))
         self.setFixedHeight(200)
         self.setMaximumWidth(200)
         self.setFrameStyle(QFrame.Shape.Box)
         self.setLineWidth(1)
+        
+        self.viewer = viewer
+        self.layers = {}
+        self.last_layer_number = 1
 
-        self.layers = []
-        self.add_layer(Layer("First Layer"))
-        self.add_layer(Layer("Second Layer"))
+    def add_layer_widget(self):
+        layer_widget = LayerWidget(f"{self.last_layer_number} Layer")
+        self.last_layer_number += 1
+        self.viewer.add_drawing_layer()
+        self.layers[layer_widget] = self.viewer.current_layer
 
-    def add_layer(self, layer: QWidget):
-        self.layers.append(layer)
-        self.layout.addWidget(layer)
+        self.layout.addWidget(layer_widget)
 
-    def remove_layer(self, layer: QWidget):
-        if layer in self.layers:
-            self.layers.remove(layer)
-            self.layout.removeWidget(layer)
-            layer.setParent(None)
+    # def add_layer(self, layer):
+    #     self.layers[layer_widget] = layer
+    #     self.layout.addWidget(layer_widget)
 
-class Layer(QWidget):
-    def __init__(self, text=""):
+    def remove_layer(self, layer_widget: QWidget):
+        if layer_widget in self.layers.keys():
+            del self.layers[layer_widget]
+            self.layout.removeWidget(layer_widget)
+            layer_widget.setParent(None)
+
+class LayerWidget(QWidget):
+    def __init__(self, layer_name=""):
         super().__init__()
         self.layout = QHBoxLayout(self)
-        self.title = QLabel(text)
+        self.title = QLabel(layer_name)
         self.button = QPushButton()
         self.layout.addWidget(self.title)
         self.layout.addWidget(self.button)
