@@ -57,6 +57,7 @@ class MainWindow(QMainWindow):
     def init_signals(self):
         self.save_button.clicked.connect(self.viewer.save_image)
         self.add_image_button.clicked.connect(self.viewer.add_image)
+        self.add_image_button.clicked.connect(self.layers_panel.remove_all_layers)
         self.erase_button.clicked.connect(self.onStateChanged)
         self.draw_button.clicked.connect(self.onStateChanged)
         self.draw_button.clicked.connect(self.showColorDialog)

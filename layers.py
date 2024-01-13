@@ -23,9 +23,12 @@ class LayersPanel(QFrame):
 
         self.layout.addWidget(layer_widget)
 
-    # def add_layer(self, layer):
-    #     self.layers[layer_widget] = layer
-    #     self.layout.addWidget(layer_widget)
+    def remove_all_layers(self):
+        for layer_widget in self.layers.keys():
+            self.layers[layer_widget] = None
+            self.layout.removeWidget(layer_widget)
+            layer_widget.setParent(None)
+        self.last_layer_number = 1
 
     def remove_layer(self, layer_widget: QWidget):
         if layer_widget in self.layers.keys():

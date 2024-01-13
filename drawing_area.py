@@ -3,8 +3,6 @@ from PyQt6.QtGui import (QPixmap, QPainter, QPen, QColor, QImage)
 from PyQt6.QtCore import (Qt, QPoint, QLineF, QPointF, QRectF, QRect, QSize, QSizeF)
 from PyQt6 import QtGui
 
-#from layers import LayersPanel
-
 class Layer(QGraphicsRectItem):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -114,7 +112,9 @@ class Viewer(QGraphicsView):
         self.background_item.setPixmap(image)
         for layer in self.layers:
             layer.reset()
-            #del layer
+            layer.setParentItem(None)
+        self.m_current_layer = self.background_item
+        self.layers = []
         self.fitInView(self.background_item, Qt.AspectRatioMode.KeepAspectRatio)
         self.centerOn(self.background_item)
 
