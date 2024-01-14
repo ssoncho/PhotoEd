@@ -105,13 +105,21 @@ class Viewer(QGraphicsView):
         self.m_current_layer.reset()
         self.layers.append(self.m_current_layer)
 
+    def remove_drawing_layer(self, layer):
+        if layer == self.m_current_layer:
+            if len(self.layers) == 1:
+                self.m_current_layer = self.background_item
+            else:
+                self.m_current_layer = self.layers[-2]
+        self.layers.remove(layer)
+        layer.setParentItem(None)
+
     def set_image(self, image):
         self.scene().setSceneRect(
             QRectF(QPointF(), QSizeF(image.size()))
         )
         self.background_item.setPixmap(image)
         for layer in self.layers:
-            layer.reset()
             layer.setParentItem(None)
         self.m_current_layer = self.background_item
         self.layers = []
