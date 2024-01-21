@@ -2,7 +2,7 @@ from PyQt6 import QtWidgets
 from PyQt6 import QtCore
 from PyQt6.QtWidgets import (QApplication, QMainWindow, QVBoxLayout, QHBoxLayout, QScrollArea)
 from buttons import FunctionalButton
-from drawing_area import Viewer, DrawingLayer, Layer
+from drawing_area import Viewer, DrawingLayer, Layer, TextLayer
 from layers import LayersPanel
 from color_panel import (ColorPanel)
 
@@ -61,6 +61,8 @@ class MainWindow(QMainWindow):
         self.erase_button.clicked.connect(self.onStateChanged)
         self.draw_button.clicked.connect(self.onStateChanged)
         self.draw_button.clicked.connect(self.showColorDialog)
+        self.add_text_button.clicked.connect(lambda: self.layers_panel.add_layer_widget(Viewer.TextLayer))
+        self.add_text_button.clicked.connect(self.showColorDialog)
 
     @QtCore.pyqtSlot(bool)
     def onStateChanged(self):
@@ -78,6 +80,11 @@ class MainWindow(QMainWindow):
                 self.viewer.m_current_layer.pen_color, self
             )
             self.viewer.m_current_layer.pen_color = color
+        elif isinstance(self.viewer.m_current_layer, TextLayer):
+            color = QtWidgets.QColorDialog.getColor(
+                self.viewer.m_current_layer.text_color, self
+            )
+            self.viewer.m_current_layer.text_color = color
 
 app = QApplication(sys.argv)
 window = MainWindow()

@@ -1,5 +1,5 @@
-from PyQt6.QtWidgets import (QLabel, QFileDialog, QGraphicsView, QGraphicsScene, QGraphicsPixmapItem, QGraphicsLineItem, QGraphicsRectItem)
-from PyQt6.QtGui import (QPixmap, QPainter, QPen, QColor, QImage)
+from PyQt6.QtWidgets import (QFileDialog, QGraphicsView, QGraphicsScene, QGraphicsPixmapItem, QGraphicsRectItem, QGraphicsTextItem, QGraphicsItem)
+from PyQt6.QtGui import (QPixmap, QPainter, QPen, QColor, QImage, QFont, QTextDocument, QTextCursor)
 from PyQt6.QtCore import (Qt, QPoint, QLineF, QPointF, QRectF, QRect, QSize, QSizeF)
 from PyQt6 import QtGui
 
@@ -7,8 +7,41 @@ class Layer(QGraphicsRectItem):
     def __init__(self, parent=None):
         super().__init__(parent)
 
+class TextLayer(QGraphicsTextItem):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setPlainText("Текст")
+        self.setFont(QFont("Arial", 34))
+        self.setTextInteractionFlags(Qt.TextInteractionFlag.TextEditorInteraction)
+        self.setFlag(QGraphicsItem.GraphicsItemFlag.ItemIsMovable)
+        self.m_is_editable = True
+        self.m_text_color = Qt.GlobalColor.black
+        self.setDefaultTextColor(self.m_text_color)
+
+    def set_editing(self):
+        if self.is_editable:
+            self.clearFocus()
+            self.setTextInteractionFlags(Qt.TextInteractionFlag.NoTextInteraction)
+            self.m_is_editable = False
+        else:
+            self.setTextInteractionFlags(Qt.TextInteractionFlag.TextEditorInteraction)
+            self.m_is_editable = True
+
+    @property
+    def is_editable(self):
+        return self.m_is_editable
+
+    @property
+    def text_color(self):
+        return self.m_text_color
+
+    @text_color.setter
+    def text_color(self, color):
+        self.m_text_color = color
+        self.setDefaultTextColor(color)
+            
 class DrawingLayer(Layer):
-    DrawState, EraseState = range(2)
+    DrawState, EraseState, NoActionState = range(3)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -82,6 +115,7 @@ class DrawingLayer(Layer):
         self._pen_color = color
 
 class Viewer(QGraphicsView):
+    DrawingLayer, TextLayer = range(2)
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setScene(QGraphicsScene(self))
@@ -99,13 +133,27 @@ class Viewer(QGraphicsView):
 
         self.scene().addItem(self.background_item)
 
-    def add_drawing_layer(self):
-        self.m_current_layer = DrawingLayer(self.background_item)
-        self.m_current_layer.pen_color = Qt.GlobalColor.transparent
-        self.m_current_layer.reset()
+    def mouseDoubleClickEvent(self, event):
+        if isinstance(self.m_current_layer, TextLayer) and not self.m_current_layer.isVisible():
+            self.m_current_layer.setPos(self.mapToScene(event.pos()))
+            self.m_current_layer.setVisible(True)
+
+    def add_layer(self, layer):
+        if isinstance(self.m_current_layer, TextLayer) and self.m_current_layer.is_editable:
+            self.m_current_layer.set_editing()
+        if layer == Viewer.DrawingLayer:
+            self.m_current_layer = DrawingLayer(self.background_item)
+            self.m_current_layer.pen_color = Qt.GlobalColor.transparent
+            self.m_current_layer.reset()
+        elif layer == Viewer.TextLayer:
+            if isinstance(self.m_current_layer, DrawingLayer):
+                self.m_current_layer.set_state(DrawingLayer.NoActionState)
+            self.m_current_layer = TextLayer(self.background_item)
+            #self.m_current_layer.setPos(QPointF(self.background_item.boundingRect().width()/2, self.background_item.boundingRect().height()/2))
+            self.m_current_layer.setVisible(False)
         self.layers.append(self.m_current_layer)
 
-    def remove_drawing_layer(self, layer):
+    def remove_layer(self, layer):
         if layer == self.m_current_layer:
             if len(self.layers) == 1:
                 self.m_current_layer = self.background_item
@@ -113,6 +161,8 @@ class Viewer(QGraphicsView):
                 self.m_current_layer = self.layers[-2]
         self.layers.remove(layer)
         layer.setParentItem(None)
+        if isinstance(self.m_current_layer, TextLayer) and self.m_current_layer.is_editable == False:
+            self.m_current_layer.set_editing()
 
     def set_image(self, image):
         self.scene().setSceneRect(
