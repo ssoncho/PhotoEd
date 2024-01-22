@@ -2,6 +2,7 @@ from PyQt6.QtWidgets import (QFileDialog, QGraphicsView, QGraphicsScene, QGraphi
 from PyQt6.QtGui import (QPixmap, QPainter, QPen, QColor, QImage, QFont, QTextDocument, QTextCursor)
 from PyQt6.QtCore import (Qt, QPoint, QLineF, QPointF, QRectF, QRect, QSize, QSizeF)
 from PyQt6 import QtGui
+from PyQt6 import QtCore
 
 class Layer(QGraphicsRectItem):
     def __init__(self, parent=None):
@@ -116,8 +117,11 @@ class DrawingLayer(Layer):
 
 class Viewer(QGraphicsView):
     DrawingLayer, TextLayer = range(2)
+    layer_added = QtCore.pyqtSignal()
+    layer_deleted = QtCore.pyqtSignal()
     def __init__(self, parent=None):
         super().__init__(parent)
+
         self.setScene(QGraphicsScene(self))
 
         self.setRenderHint(QPainter.RenderHint.Antialiasing)
@@ -152,6 +156,7 @@ class Viewer(QGraphicsView):
             #self.m_current_layer.setPos(QPointF(self.background_item.boundingRect().width()/2, self.background_item.boundingRect().height()/2))
             self.m_current_layer.setVisible(False)
         self.layers.append(self.m_current_layer)
+        self.trigger_layer_added()
 
     def remove_layer(self, layer):
         if layer == self.m_current_layer:
@@ -163,6 +168,7 @@ class Viewer(QGraphicsView):
         layer.setParentItem(None)
         if isinstance(self.m_current_layer, TextLayer) and self.m_current_layer.is_editable == False:
             self.m_current_layer.set_editing()
+        self.trigger_layer_deleted()
 
     def set_image(self, image):
         self.scene().setSceneRect(
@@ -191,6 +197,12 @@ class Viewer(QGraphicsView):
         if file_name:
             image = QPixmap(file_name)
             self.set_image(image)
+
+    def trigger_layer_added(self):
+        self.layer_added.emit()
+
+    def trigger_layer_deleted(self):
+        self.layer_deleted.emit()
 
     @property
     def current_layer(self):

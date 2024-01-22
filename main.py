@@ -25,8 +25,8 @@ class MainWindow(QMainWindow):
         
         self.viewer = Viewer()
         self.layers_panel = LayersPanel(self.viewer)
-        #color_panel = ColorPanel(['red', 'green', 'blue'], self.viewer.drawing_layer)
-        #drawing_settings_layout.addWidget(color_panel)
+        self.color_panel = ColorPanel()
+        drawing_settings_layout.addWidget(self.color_panel)
         drawing_settings_layout.addWidget(self.layers_panel)
 
         self.add_image_button = FunctionalButton(img_path="img/add.png")
@@ -55,14 +55,29 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(main_container)
 
     def init_signals(self):
+        self.color_panel.color_button.clicked.connect(self.showColorDialog)
+
         self.save_button.clicked.connect(self.viewer.save_image)
         self.add_image_button.clicked.connect(self.viewer.add_image)
         self.add_image_button.clicked.connect(self.layers_panel.remove_all_layers)#deletes all layers even if photo wasn't chosen
         self.erase_button.clicked.connect(self.onStateChanged)
         self.draw_button.clicked.connect(self.onStateChanged)
-        self.draw_button.clicked.connect(self.showColorDialog)
         self.add_text_button.clicked.connect(lambda: self.layers_panel.add_layer_widget(Viewer.TextLayer))
-        self.add_text_button.clicked.connect(self.showColorDialog)
+        
+        self.viewer.layer_added.connect(self.onLayerAdded)
+        self.viewer.layer_deleted.connect(self.onLayerDeleted)
+
+    @QtCore.pyqtSlot()
+    def onLayerAdded(self):
+        if isinstance(self.viewer.current_layer, DrawingLayer):
+            self.viewer.current_layer.pen_color = self.color_panel.color_button.color
+        elif isinstance(self.viewer.current_layer, TextLayer):
+            self.viewer.current_layer.text_color = self.color_panel.color_button.color
+
+    @QtCore.pyqtSlot()
+    def onLayerDeleted(self):
+        if isinstance(self.viewer.current_layer, DrawingLayer):
+            self.viewer.current_layer.pen_color = self.color_panel.color_button.color
 
     @QtCore.pyqtSlot(bool)
     def onStateChanged(self):
@@ -75,16 +90,15 @@ class MainWindow(QMainWindow):
 
     @QtCore.pyqtSlot()
     def showColorDialog(self):
+        color = self.sender().color
+        selected_color = QtWidgets.QColorDialog.getColor(color, self)
+        if selected_color.isValid():
+            color = selected_color
         if isinstance(self.viewer.m_current_layer, Layer):
-            color = QtWidgets.QColorDialog.getColor(
-                self.viewer.m_current_layer.pen_color, self
-            )
             self.viewer.m_current_layer.pen_color = color
         elif isinstance(self.viewer.m_current_layer, TextLayer):
-            color = QtWidgets.QColorDialog.getColor(
-                self.viewer.m_current_layer.text_color, self
-            )
             self.viewer.m_current_layer.text_color = color
+        self.sender().color = color
 
 app = QApplication(sys.argv)
 window = MainWindow()

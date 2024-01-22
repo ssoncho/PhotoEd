@@ -21,7 +21,7 @@ class LayersPanel(QFrame):
 
     def add_layer_widget(self, layer):
         layer_widget = LayerWidget(f"{self.last_layer_number} Layer")
-        layer_widget.button.clicked.connect(lambda: self.remove_layer(layer_widget))
+        layer_widget.delete_button.clicked.connect(lambda: self.remove_layer(layer_widget))
         self.last_layer_number += 1
         self.m_current_layer_widget = layer_widget
 
@@ -58,7 +58,11 @@ class LayerWidget(QWidget):
         super().__init__()
         self.layout = QHBoxLayout(self)
         self.title = QLabel(layer_name)
-        self.button = QPushButton()
-        self.button.setIcon(QIcon("img/delete.png"))
+        self.m_delete_button = QPushButton()
+        self.m_delete_button.setIcon(QIcon("img/delete.png"))
         self.layout.addWidget(self.title)
-        self.layout.addWidget(self.button)
+        self.layout.addWidget(self.m_delete_button)
+
+    @property
+    def delete_button(self):
+        return self.m_delete_button
