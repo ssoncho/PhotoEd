@@ -153,7 +153,6 @@ class Viewer(QGraphicsView):
             if isinstance(self.m_current_layer, DrawingLayer):
                 self.m_current_layer.set_state(DrawingLayer.NoActionState)
             self.m_current_layer = TextLayer(self.background_item)
-            #self.m_current_layer.setPos(QPointF(self.background_item.boundingRect().width()/2, self.background_item.boundingRect().height()/2))
             self.m_current_layer.setVisible(False)
         self.layers.append(self.m_current_layer)
         self.trigger_layer_added()
@@ -164,6 +163,7 @@ class Viewer(QGraphicsView):
                 self.m_current_layer = self.background_item
             else:
                 self.m_current_layer = self.layers[-2]
+        
         self.layers.remove(layer)
         layer.setParentItem(None)
         if isinstance(self.m_current_layer, TextLayer) and self.m_current_layer.is_editable == False:
