@@ -6,16 +6,12 @@ class ColorPanel(QFrame):
     def __init__(self, parent=None):
        super().__init__(parent)
 
-       self.layout = QVBoxLayout(self)
-       self.setFixedHeight(200)
-       self.setMaximumWidth(200)
+       self.setFixedHeight(100)
+       self.setFixedWidth(100)
        self.setFrameStyle(QFrame.Shape.Box)
-       self.setLineWidth(1)
 
-       self.m_color_button = ColorButton(QColor(Qt.GlobalColor.black))
-       
-       self.layout.addWidget(QLabel("Выбрать цвет"))
-       self.layout.addWidget(self.m_color_button)
+       self.m_color_button = ColorButton(QColor(Qt.GlobalColor.black), self)
+       self.m_color_button.setFixedSize(100, 100)
 
     @property
     def color_button(self):

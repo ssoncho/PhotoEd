@@ -94,6 +94,8 @@ class MainWindow(QMainWindow):
         selected_color = QtWidgets.QColorDialog.getColor(color, self)
         if selected_color.isValid():
             color = selected_color
+        elif isinstance(self.viewer.m_current_layer, TextLayer):
+            return
         if isinstance(self.viewer.m_current_layer, Layer):
             self.viewer.m_current_layer.pen_color = color
         elif isinstance(self.viewer.m_current_layer, TextLayer):

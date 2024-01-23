@@ -14,6 +14,7 @@ class LayerWidget(QFrame):
 
         self.setFrameStyle(QFrame.Shape.Box)
         self.setLineWidth(1)
+        self.setFixedHeight(40)
         self._switch_active()
 
         self.layout.addWidget(self.title)
@@ -48,6 +49,19 @@ class LayersPanel(QFrame):
         self.layout = QVBoxLayout(self)
         self.m_add_layer_button = QPushButton("+", clicked=lambda: self.add_layer_widget(Viewer.DrawingLayer))
         self.layout.addWidget(self.m_add_layer_button)
+
+        self.layers_layout = QVBoxLayout()
+
+        self.scrollArea = QScrollArea(self)  # Создание области прокрутки
+        self.scrollArea.setWidgetResizable(True)  # Разрешение изменения размера виджета
+        
+        self.widget = QWidget()  # Виджет, который будет прокручиваться
+        self.widget.setLayout(self.layers_layout)  # Установка QVBoxLayout внутри прокручиваемого виджета
+        self.layout.addWidget(self.widget)
+        
+        self.scrollArea.setWidget(self.widget)  # Установка прокручиваемого виджета
+        self.layout.addWidget(self.scrollArea)
+        
         self.setFixedHeight(200)
         self.setMaximumWidth(200)
         self.setFrameStyle(QFrame.Shape.Box)
@@ -69,12 +83,12 @@ class LayersPanel(QFrame):
         self.layers_per_widgets[layer_widget] = self.viewer.current_layer
         self.widgets_per_layers[self.viewer.current_layer] = layer_widget
 
-        self.layout.addWidget(layer_widget)
+        self.layers_layout.addWidget(layer_widget)
 
     def remove_all_layers(self):
         for layer_widget in self.layers_per_widgets.keys():
             #self.layers_per_widgets[layer_widget] = None
-            self.layout.removeWidget(layer_widget)
+            self.layers_layout.removeWidget(layer_widget)
             layer_widget.setParent(None)
 
         self.last_layer_number = 1
@@ -87,7 +101,7 @@ class LayersPanel(QFrame):
             self.viewer.remove_layer(self.layers_per_widgets[layer_widget])
             del self.widgets_per_layers[self.layers_per_widgets[layer_widget]]
             del self.layers_per_widgets[layer_widget]
-            self.layout.removeWidget(layer_widget)
+            self.layers_layout.removeWidget(layer_widget)
             layer_widget.setParent(None)
         if len(self.widgets_per_layers) > 0:
             self.widgets_per_layers[self.viewer.current_layer].is_active = True
