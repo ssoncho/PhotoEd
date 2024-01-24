@@ -4,6 +4,11 @@ from PyQt6.QtCore import (Qt, QPoint, QLineF, QPointF, QRectF, QRect, QSize, QSi
 from PyQt6 import QtGui
 from PyQt6 import QtCore
 
+import random
+
+SPRAY_PARTICLES = 100
+SPRAY_DIAMETER = 10
+
 class Layer(QGraphicsRectItem):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -42,11 +47,11 @@ class TextLayer(QGraphicsTextItem):
         self.setDefaultTextColor(color)
             
 class DrawingLayer(Layer):
-    DrawState, EraseState, NoActionState = range(3)
+    DrawState, SprayState, EraseState, NoActionState = range(4)
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.current_state = DrawingLayer.DrawState
+        self.current_state = DrawingLayer.NoActionState
         self.setPen(QtGui.QPen(Qt.PenStyle.NoPen))
 
         self.m_line_eraser = QLineF()
@@ -83,12 +88,24 @@ class DrawingLayer(Layer):
                 self.m_line_draw, QtGui.QPen(self.pen_color, 15, cap=Qt.PenCapStyle.RoundCap, join=Qt.PenJoinStyle.RoundJoin)
             )
             self.m_line_draw.setP1(event.pos())
+        elif self.current_state == DrawingLayer.SprayState:
+            self._draw_spray(QtGui.QPen(self.pen_color, 5, cap=Qt.PenCapStyle.RoundCap, join=Qt.PenJoinStyle.RoundJoin), event.pos())
         super().mouseMoveEvent(event)
 
     def _draw_line(self, line, pen):
         painter = QtGui.QPainter(self.m_pixmap)
         painter.setPen(pen)
         painter.drawLine(line)
+        painter.end()
+        self.update()
+
+    def _draw_spray(self, pen, position):
+        painter = QtGui.QPainter(self.m_pixmap)
+        painter.setPen(pen)
+        for n in range(SPRAY_PARTICLES):
+            xo = random.gauss(0, SPRAY_DIAMETER)
+            yo = random.gauss(0, SPRAY_DIAMETER)
+            painter.drawPoint(QPointF(position.x() + xo, position.y() + yo))
         painter.end()
         self.update()
 

@@ -31,21 +31,15 @@ class MainWindow(QMainWindow):
 
         self.add_image_button = FunctionalButton(img_path="img/add.png")
         self.draw_button = FunctionalButton(img_path="img/draw.png")
-        self.draw_figure_button = FunctionalButton(img_path="img/figure.png")
+        self.draw_spray_button = FunctionalButton(img_path="img/spray.png")
         self.erase_button = FunctionalButton(img_path="img/erase.png")
         self.add_text_button = FunctionalButton(img_path="img/text.png")
-        self.cut_image_button = FunctionalButton(img_path="img/cut.png")
-        self.undo_button = FunctionalButton(img_path="img/undo.png")
-        self.redo_button = FunctionalButton(img_path="img/redo.png")
         self.save_button = FunctionalButton(img_path="img/save.png")
         buttons_layout.addWidget(self.add_image_button)
         buttons_layout.addWidget(self.draw_button)
-        buttons_layout.addWidget(self.draw_figure_button)
+        buttons_layout.addWidget(self.draw_spray_button)
         buttons_layout.addWidget(self.erase_button)
         buttons_layout.addWidget(self.add_text_button)
-        buttons_layout.addWidget(self.cut_image_button)
-        buttons_layout.addWidget(self.undo_button)
-        buttons_layout.addWidget(self.redo_button)
         buttons_layout.addWidget(self.save_button)
 
         main_layout.addLayout(drawing_settings_layout)
@@ -62,6 +56,7 @@ class MainWindow(QMainWindow):
         self.add_image_button.clicked.connect(self.layers_panel.remove_all_layers)#deletes all layers even if photo wasn't chosen
         self.erase_button.clicked.connect(self.onStateChanged)
         self.draw_button.clicked.connect(self.onStateChanged)
+        self.draw_spray_button.clicked.connect(self.onStateChanged)
         self.add_text_button.clicked.connect(lambda: self.layers_panel.add_layer_widget(Viewer.TextLayer))
         
         self.viewer.layer_added.connect(self.onLayerAdded)
@@ -85,7 +80,7 @@ class MainWindow(QMainWindow):
             self.viewer.current_layer.current_state = (
                 DrawingLayer.EraseState
                 if self.sender() == self.erase_button
-                else DrawingLayer.DrawState
+                else (DrawingLayer.DrawState if self.sender() == self.draw_button else DrawingLayer.SprayState)
         )
 
     @QtCore.pyqtSlot()
