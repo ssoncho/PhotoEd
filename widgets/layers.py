@@ -1,6 +1,6 @@
 from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QFrame, QScrollArea)
 from PyQt6.QtGui import (QIcon, QPalette, QColor)
-from drawing_area import DrawingLayer, Viewer
+from widgets.drawing_area import DrawingLayer, Viewer
 
 class LayerWidget(QFrame):
     def __init__(self, layer_name=""):
@@ -52,14 +52,14 @@ class LayersPanel(QFrame):
 
         self.layers_layout = QVBoxLayout()
 
-        self.scrollArea = QScrollArea(self)  # Создание области прокрутки
-        self.scrollArea.setWidgetResizable(True)  # Разрешение изменения размера виджета
+        self.scrollArea = QScrollArea(self)
+        self.scrollArea.setWidgetResizable(True)
         
-        self.widget = QWidget()  # Виджет, который будет прокручиваться
-        self.widget.setLayout(self.layers_layout)  # Установка QVBoxLayout внутри прокручиваемого виджета
+        self.widget = QWidget()
+        self.widget.setLayout(self.layers_layout)
         self.layout.addWidget(self.widget)
         
-        self.scrollArea.setWidget(self.widget)  # Установка прокручиваемого виджета
+        self.scrollArea.setWidget(self.widget)
         self.layout.addWidget(self.scrollArea)
         
         self.setFixedHeight(200)

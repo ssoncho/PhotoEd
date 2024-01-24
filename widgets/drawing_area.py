@@ -45,6 +45,17 @@ class TextLayer(QGraphicsTextItem):
     def text_color(self, color):
         self.m_text_color = color
         self.setDefaultTextColor(color)
+
+    @property
+    def text_thickness(self):
+        return self.m_text_thickness
+
+    @text_thickness.setter
+    def text_thickness(self, thickness):
+        self.m_text_thickness = thickness
+        font = QFont("Arial", 34)
+        font.setPointSize(thickness)
+        self.setFont(font)
             
 class DrawingLayer(Layer):
     DrawState, SprayState, EraseState, NoActionState = range(4)
@@ -85,7 +96,7 @@ class DrawingLayer(Layer):
         elif self.current_state == DrawingLayer.DrawState:
             self.m_line_draw.setP2(event.pos())
             self._draw_line(
-                self.m_line_draw, QtGui.QPen(self.pen_color, 15, cap=Qt.PenCapStyle.RoundCap, join=Qt.PenJoinStyle.RoundJoin)
+                self.m_line_draw, QtGui.QPen(self.pen_color, self.pen_thickness, cap=Qt.PenCapStyle.RoundCap, join=Qt.PenJoinStyle.RoundJoin)
             )
             self.m_line_draw.setP1(event.pos())
         elif self.current_state == DrawingLayer.SprayState:
@@ -131,6 +142,14 @@ class DrawingLayer(Layer):
     @pen_color.setter
     def pen_color(self, color):
         self._pen_color = color
+
+    @property
+    def pen_thickness(self):
+        return self._pen_thickness
+
+    @pen_thickness.setter
+    def pen_thickness(self, thickness):
+        self._pen_thickness = thickness
 
 class Viewer(QGraphicsView):
     DrawingLayer, TextLayer = range(2)
@@ -200,7 +219,7 @@ class Viewer(QGraphicsView):
         self.centerOn(self.background_item)
 
     def save_image(self):
-        file_name, _ = QFileDialog.getSaveFileName(self, "Save Image", "", "Images (*.png *.jpg *.bmp)")
+        file_name, _ = QFileDialog.getSaveFileName(self, "Save Image", filter="*.jpg")
         if file_name:
             image = QImage(self.background_item.boundingRect().size().toSize(), QImage.Format.Format_ARGB32)
             painter = QPainter(image)
@@ -210,7 +229,7 @@ class Viewer(QGraphicsView):
             image.save(file_name)
 
     def add_image(self):
-        file_name, _ = QFileDialog.getOpenFileName(self, "Add Image", "")
+        file_name, _ = QFileDialog.getOpenFileName(self, "Add Image", filter="*.jpg")
         if file_name:
             image = QPixmap(file_name)
             self.set_image(image)

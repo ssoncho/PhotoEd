@@ -1,10 +1,10 @@
 from PyQt6 import QtWidgets
 from PyQt6 import QtCore
 from PyQt6.QtWidgets import (QApplication, QMainWindow, QVBoxLayout, QHBoxLayout, QScrollArea)
-from buttons import FunctionalButton
-from drawing_area import Viewer, DrawingLayer, Layer, TextLayer
-from layers import LayersPanel
-from color_panel import (ColorPanel)
+from widgets.buttons import FunctionalButton
+from widgets.drawing_area import Viewer, DrawingLayer, Layer, TextLayer
+from widgets.layers import LayersPanel
+from widgets.color_panel import (ColorPanel)
 
 import sys
 
@@ -15,7 +15,7 @@ class MainWindow(QMainWindow):
         self.init_signals()
 
     def init_UI(self):
-        self.setGeometry(50, 50, 950, 600)
+        self.setGeometry(50, 50, 1250, 600)
         self.setWindowTitle('PhotoEd')
         main_container = QtWidgets.QWidget()
         main_layout = QHBoxLayout()
@@ -61,13 +61,17 @@ class MainWindow(QMainWindow):
         
         self.viewer.layer_added.connect(self.onLayerAdded)
         self.viewer.layer_deleted.connect(self.onLayerDeleted)
+        self.color_panel.slider.valueChanged.connect(self.onSizeChanged)
+        self.color_panel.spin_box.valueChanged.connect(self.onSizeChanged)
 
     @QtCore.pyqtSlot()
     def onLayerAdded(self):
         if isinstance(self.viewer.current_layer, DrawingLayer):
             self.viewer.current_layer.pen_color = self.color_panel.color_button.color
+            self.viewer.current_layer.pen_thickness = self.color_panel.slider.value()
         elif isinstance(self.viewer.current_layer, TextLayer):
             self.viewer.current_layer.text_color = self.color_panel.color_button.color
+            self.viewer.current_layer.text_thickness = self.color_panel.spin_box.value()
 
     @QtCore.pyqtSlot()
     def onLayerDeleted(self):
@@ -82,6 +86,13 @@ class MainWindow(QMainWindow):
                 if self.sender() == self.erase_button
                 else (DrawingLayer.DrawState if self.sender() == self.draw_button else DrawingLayer.SprayState)
         )
+
+    @QtCore.pyqtSlot()
+    def onSizeChanged(self):
+        if isinstance(self.viewer.m_current_layer, Layer):
+            self.viewer.m_current_layer.pen_thickness = self.color_panel.slider.value()
+        elif isinstance(self.viewer.m_current_layer, TextLayer):
+            self.viewer.m_current_layer.text_thickness = self.color_panel.spin_box.value()
 
     @QtCore.pyqtSlot()
     def showColorDialog(self):
